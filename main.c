@@ -1,16 +1,9 @@
 #include <stdlib.h>
 #include <stdio.h>
-
-typedef struct {
-	int * gauche; // taille 32
-	int * droite; // taille 32
-} bloc;
-
-typedef struct {
-	int * cle_56; // taille 56
-	int * gauche; // taille 26
-	int * droite; // taille 26
-} sous_cle;
+#include <string.h>
+/* redéfinition de types */ 
+typedef unsigned long int u64;
+typedef unsigned int u32;
 
 /* Les Différentes Matrice utilisé */
 
@@ -38,6 +31,7 @@ int E[48] = {
 	28,29,30,31,32,1 
 };
 
+// Transposition
 int P[32] = {
 	16,7 ,20,21,
 	29,12,28,17,
@@ -49,6 +43,7 @@ int P[32] = {
 	22,11,4 ,25 
 };
 
+// Transposition avec oubli
 int PC_2 [48] = {
 	14,17,11,24,1 ,5 ,
 	3 ,28,15,6 ,21,10,
@@ -60,6 +55,7 @@ int PC_2 [48] = {
 	46,42,50,36,29,32
 };
 
+// partie gauche de la clé
 int PC_1G [28] = {
 	57,49,41,33,25,17,9 ,
 	1 ,58,50,42,34,26,18,
@@ -67,6 +63,7 @@ int PC_1G [28] = {
 	19,11,3 ,60,52,44,36
 };
 
+// partie droite de la clé
 int PC_1D [28] = {
 	63,55,47,39,31,23,15,
 	7 ,62,54,46,38,30,22,
@@ -74,6 +71,7 @@ int PC_1D [28] = {
 	21,13,5 ,28,20,12,4 
 };
 
+// La boite S
 int Boite_S [8][64] = {
 	{
 		14,4 ,13,1 ,2 ,15,11,8 ,3 ,10,6 ,12,5 ,9 ,0 ,7 ,
@@ -133,320 +131,48 @@ int Boite_S [8][64] = {
 };
 /* ------------------------------- */
 
-/**
- * Permet d'initialisé un test
- * @param size: la taille du texte pour l'alloué
- * @return le texte init à 0
- * */
-int * init_text(int size) {
-	
-	int * text = malloc(sizeof(int) * size);
-
-	for(int i = 0; i < size; i++) {
-		text[i] = 0;
-	}
-	
-	return text;
+void afficher_aide() {
+	printf("AIDE pour DES:\n");
+	printf("TAPER ./out {option} {MOT_DE_PASSE}\n");
+	printf("Les différentes options:\n");
+	printf("	'-e': pour encoder\n");
+	printf("	'-d': pour decoder\n");
+	printf("Bien evidement appliquer une seul option :p\n");
+	printf("L'argument {MOT_DE_PASSE} ne doit pas contenir d'espace\n");
+	printf("	-C'est un fichier (le mot de passe peut contenir des espaces) OU le mot de passe sans espaces si le fichier n'existe pas\n");
 }
 
-/**
- * Permutation initial
- * @param text: pour la première permutation
- * @return res
- * */
-int* permutation_initial(int * text) {
-	int * tmp = init_text(64);
-	for(int i = 0 ; i < 64 ; i++) {
-		tmp[IP[i] - 1] = text[i];
-	}
-	for(int i = 0 ; i < 64 ; i++) {
-		text[i] = tmp[i];
-	}
-	free(text);
-	return tmp;
+void error_parsing_terminal_entry() {
+	fprintf(stderr,"Option non valide, entrer aide comme option pour en savoir plus\n");
+	exit(EXIT_FAILURE);
 }
 
-/**
- * Permutation final
- * @param text: pour la dernière permutation
- * @return res
- * */
-int* permutation_final(int * text) {
-	int * tmp = init_text(64);
-	for(int i = 0 ; i < 64 ; i++) {
-		tmp[i] = text[IP[i] - 1];
+void parsing_terminal(int argc, char ** argv) {
+	if(argc < 2 || argc > 4) {
+		error_parsing_terminal_entry();
+	}	
+	if(strcmp(argv[1],"aide") == 0) {
+		afficher_aide();
+		exit(EXIT_SUCCESS);
 	}
-	for(int i = 0 ; i < 64 ; i++) {
-		text[i] = tmp[i];
+	if(argc != 3) {
+		error_parsing_terminal_entry();
 	}
-	free(text);
-	return tmp;
-}
-
-/**
- * Initialise les blocs
- * @param text: texte de 64 bits
- * @return res
- * */
-bloc init_bloc(int * text) {
-	bloc B;
-	B.gauche = init_text(32);
-	B.droite = init_text(32);
-	int k = 0;
-	for(int i = 0; i < 32; i++) {
-		B.gauche[i] = text[k];
-		k++;
-	}
-	for(int i = 0; i < 32; i++) {
-		B.droite[i] = text[k];
-		k++;
-	}
-	return B;
-}
-
-/**
- * Fonction d'expansion
- * @param side: le coté pour appliqué l'expension
- * @return res
- * */
-int * expansion(int * side) {
-	int * tmp = init_text(48);
-	
-	for(int i = 0 ; i < 48 ; i++) {
-		tmp[i] = side[E[i] - 1];
-	}
-	return tmp;
-}
-
-/**
- * Fonction de permutation
- * @param text_32: un texte de 32 bits
- * @return res
- * */
-int * permutation(int * text_32) {
-	int * tmp = init_text(32);
-	
-	for(int i = 0 ; i < 32 ; i ++) {
-		tmp[i] = text_32[P[i] - 1];
-	}
-	free(text_32);
-	return tmp;
-}
-
-/**
- * Permet d'afficher un texte
- * @param text
- * @param taille
- * */
-void afficher_text(int * text, int size) {
-	for(int i = 0; i < size ; i++) {
-		printf("[%d]",text[i]);
-	}
-	printf("\n");
-}
-
-/**
- * Concatene les deux clé pour crée la clé de 56 bits
- * @param C: la structure bloc ou contient les inforamations
- * */
-void cat_key(sous_cle * C) {
-	int * res = init_text(56);
-	int k = 0;
-	
-	for(int i = 0; i < 28; i++) {
-		C->cle_56[k] = C->gauche[i];
-		k++;
-	}
-	
-	for(int i = 0; i < 28; i++) {
-		C->cle_56[k] = C->droite[i];
-		k++;
-	}
-}
-
-/**
- * Permet de récuperer la clé de 56 bits dans la clé de 64 bits
- * @param cle_64: la clé de 64 bits
- * @return la clé de 56 bits
- * */
-int * prendre_cle_56(int * cle_64) {	
-	int * cle_56 = init_text(56);
-	int parite[8] = {8,16,24,32,40,48,56,64};
-	int k = 0;
-	int j = 0;
-	for(int i = 0; i < 64 ; i++) {
-		if(i == parite[j] - 1) {
-			j++;
+	if(strcmp(argv[1],"-e") == 0) {
+		printf("encodage en cours...");
+	} else {
+		if(strcmp(argv[1],"-d") == 0) {
+			printf("decodage en cours...");
 		}
 		else {
-			cle_56[k] = cle_64[i];
-			k++;
+			error_parsing_terminal_entry();
 		}
 	}
-	return cle_56;
 }
 
-/**
- * Permet d'initialisé la sous-clé
- * @param cle_64: la clé de 64 bits
- * @return la structure de donnée
- * */
-sous_cle init_sous_cle(int * cle_64) {
-	sous_cle C; 
-	C.gauche = init_text(28);
-	C.droite = init_text(28);
-	C.cle_56 = prendre_cle_56(cle_64);
-	return C;
-}
-
-/**
- * Permet de crée la clé pour xor
- * @param C la structure de donné
- * @return la clé de 48 bits
- * */
-int * creer_cle_48(sous_cle * C) {
-
-	for(int i = 0 ; i < 28 ; i++) {
-		C->gauche[i] = C->cle_56[PC_1G[i-1]];
-	}
-	for(int i = 0; i < 28 ; i++) {
-		C->droite[i] = C->cle_56[PC_1D[i-1]];
-	}
-	cat_key(C);
-	
-	int * cle_48 = init_text(48);
-	// transposition avec oubli
-	for(int i = 0; i < 48; i++) {
-		cle_48[i] = C->cle_56[PC_2[i]]; 
-	}
-	
-	return cle_48;
-}
-
-/**
- * Xor pour deux tableaux
- * @param cle_48
- * @param side de 48 éléments
- * @return res du xor
- * */
-int * Xor(int * cle_48, int * side) {
-	int * res = init_text(48);
-	for(int i = 0; i < 48 ; i++) {
-		res[i] = cle_48[i] ^ side[i];
-	}
-	return res;
-}
-
-/**
- * Fonction de S boite
- * @param res_48: les 48 bits d'entrée
- * @return nombre de bits de 32 bits
- * */
-int * S_boite_fonction(int * res_48) {
-	
-	return res_48;
-}
-
-/**
- * Permet d'assembler le message final
- * @param gauche: le cote gauche
- * @param droite: le cote droit
- * @return la concatenation des deux cotés
- * */
-int * assemble_message(int * gauche, int * droite) {
-	int * chiffre = init_text(64);
-	int k = 0;
-	for(int i = 0 ; i < 32; i++) {
-		chiffre[k] = gauche[i];
-		k++;
-	}
-	for(int i = 0 ; i < 32; i++) {
-		chiffre[k] = droite[i];
-		k++;
-	}
-	return chiffre;
-}
-
-/**
- * Fonction Ronde
- * @param B: structure de bloc
- * @param C: structure de sous cle
- * @return le resultat des 16 rondes
- * */
-int * Ronde(bloc B, sous_cle C) {
-	for(int i = 0 ; i < 16 ; i++) {
-		
-		int * bloc_48G = expansion(B.gauche);
-		int * bloc_48D = expansion(B.droite);
-		
-		int * cle_48 = creer_cle_48(&C);
-		
-		S_boite_fonction(Xor(cle_48,B.gauche));
-		S_boite_fonction(Xor(cle_48,B.droite));
-		
-		B.gauche = permutation(B.gauche);
-		B.droite = permutation(B.droite);
-		// il faut shift gauche les deux parties 
-		free(cle_48);
-		free(bloc_48G);
-		free(bloc_48D);
-	}
-	return assemble_message(B.gauche,B.droite);
-} 
-
-/* DEBUG */
-int main() {
-	/* Init element */
-	int * text = init_text(64);
-	text[0] = 1;
-	text[1] = 1;
-	int * mdp = init_text(64);
-	mdp[0] = 1;
-	mdp[1] = 1;
-	/* ------------ */ 
-	printf("Message à chiffre:\n");
-	afficher_text(text,64);
-	printf("Clé:\n");
-	afficher_text(mdp,64);
-	
-	/* PHASE 1 */
-	// Première permutation
-	text = permutation_initial(text);
-	printf("Première permutation:\n");
-	afficher_text(text,64);
-	
-	// init bloc
-	bloc B = init_bloc(text);
-	printf("Coté gauche:\n");
-	afficher_text(B.gauche,32);
-	printf("Coté droit:\n");
-	afficher_text(B.droite,32);
-	// Init la clé
-	sous_cle C = init_sous_cle(mdp);
-	printf("Initialisation des clés:\n");
-	printf("clés gauche:\n");
-	afficher_text(C.gauche,26);
-	printf("clés droite:\n");
-	afficher_text(C.droite,26);
-	printf("clés:\n");
-	afficher_text(C.cle_56,56);
-	
-	/* PHASE 2 */
-	// Phase des 16 rondes
-	int * chiffre = init_text(64);
-	chiffre = Ronde(B,C);
-	
-	/* PHASE 3 */
-	// Permutation inverse
-	chiffre = permutation_final(chiffre);
-
-	/* Free element */
-	free(C.gauche);
-	free(C.droite);
-	free(C.cle_56);
-	free(text);
-	free(chiffre);
-	free(mdp);
-	/* ------------ */
-	return 0;
+void main(int argc, char ** argv) {
+	//~ parsing_terminal(argc,argv);
+	u64 text = 1;
+	text = rearange_u64(text,0);
+	exit(EXIT_SUCCESS);
 } 
