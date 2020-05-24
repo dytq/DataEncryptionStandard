@@ -170,9 +170,7 @@ void parsing_terminal(int argc, char ** argv) {
 	}
 }
 
-void main(int argc, char ** argv) {
+int main(int argc, char ** argv) {
 	//~ parsing_terminal(argc,argv);
-	u64 text = 1;
-	text = rearange_u64(text,0);
 	exit(EXIT_SUCCESS);
 } 

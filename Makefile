@@ -2,10 +2,10 @@
 CFLAGS = -g -Wall -c
 OBJ = $(wildcard *.o)
 
-all:out
+all:app.out
 
 # Edition de lien du programme principal
-out: main.o
+app.out: main.o
 	gcc -o $@ $^ ${LFLAGS}
 
 # Compilation du programme principal
@@ -17,5 +17,5 @@ main.o: main.c
 
 # Monsieur Propre
 clean:
-	@rm *.o; rm out
-	@echo suppression de ${OBJ} et out
+	@rm *.o; rm app.out
+	@echo suppression de ${OBJ} et app.out
