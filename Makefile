@@ -12,14 +12,17 @@ run:app.out
 	./app.out
 
 # Edition de lien du programme principal
-app.out: main.o feistel.o interface.o cle.o feistel.o
+app.out: main.o feistel.o interface.o cle.o feistel.o bloc.o
 	gcc -o $@ $^ ${LFLAGS}
 
 # Compilation du programme principal
-main.o: main.c bloc.h interface.h cle.h feistel.h
+main.o: main.c bloc.h interface.h cle.h feistel.h 
 	gcc ${CFLAGS} $*.c
 
 # Compilation des différents .o
+bloc.o:bloc.c bloc.h
+	gcc ${CFLAGS} $*.c
+
 interface.o: interface.c interface.h bloc.h
 	gcc ${CFLAGS} $*.c
 
