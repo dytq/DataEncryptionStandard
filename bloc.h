@@ -16,10 +16,10 @@ typedef unsigned char bc4;
 /**
  * Fonction qui permet de faire des swap selon l'id du tableau à swaper souhaité
  * @param test a swaper
- * @param l'identifiant du tableau
+ * @param le pointeur des tableaux
  * @return le texte swaper
  * */
-bc64 swap_bloc(bc64 text,int id);
+bc64 swap_bloc(bc64 text, int * pointeur);
 void init_pointeur(int ** pointeur);
 
 #endif 

@@ -53,7 +53,7 @@ bc64 * convertir_message_64_bits(char * message) {
 	int k = 0;
 	bc64 tmp = 0;
 	int bloc_inter = 0;
-	while( k < taille_message) {		
+	while(k < taille_message) {		
 		for(int i = 0 ; i < 8 ; i++) {
 			tmp = tmp << 8;
 			tmp = tmp | message[k]; 
@@ -69,19 +69,8 @@ bc64 * convertir_message_64_bits(char * message) {
 	return blocs;
 }
 
-// permutation initial
-bc64 permutation_initial(bc64 text) {
-	return 0;
-}
-
-// permutation final
-bc64 permutation_final(bc64 text) {
-	
-	return 0;
-}
-
 // permet de chiffrer un message
-void chiffrement(char * message, char * cle) {
+void chiffrement(char * message, char * cle) {	
 	
 }
 

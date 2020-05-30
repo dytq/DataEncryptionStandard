@@ -148,24 +148,16 @@ void init_pointeur(int ** pointeur) {
     pointeur[13] = E;
 }
 
-bc64 swap_bloc(bc64 text,int id) {
-    int * (*pointeur) = malloc(sizeof(int *) * 14);
-    init_pointeur(pointeur);
-    int bit;
-	bc64 tmp;
+bc64 swap_bloc(bc64 text, int * pointeur) {
+    bc64 bit;
 	bc64 res = 0;
 	int i = 0;
 	while(text != 0) {
 		bit = text & 1;
-		printf("[%d]",bit);
-		if(bit) {
-			tmp = 1;
-			tmp = tmp << (*pointeur[id] - 1);
-			res = res | tmp;	
-		}
+		bit = bit << (*(pointeur + i) - 1);
+		res = res | bit;	
 		text = text >> 1;
 		i++;
 	}
-    free(pointeur); 
 	return res;
 }
