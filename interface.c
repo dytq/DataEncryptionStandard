@@ -36,21 +36,21 @@ void error_parsing_terminal_entry() {
 }
 
 void parsing_terminal(int argc, char ** argv) {
-	if(argc < 2 || argc > 4) {
+	if(argc < 2 || argc > 5) {
 		error_parsing_terminal_entry();
 	}	
 	if(strcmp(argv[1],"aide") == 0) {
 		afficher_aide();
 		exit(EXIT_SUCCESS);
 	}
-	if(argc != 3) {
+	if(argc != 4) {
 		error_parsing_terminal_entry();
 	}
 	if(strcmp(argv[1],"-e") == 0) {
-		chiffrement("test","test");
+		chiffrement(lire_fichier(argv[2]),lire_fichier(argv[3]));
 	} else {
 		if(strcmp(argv[1],"-d") == 0) {
-			dechiffrement("test","test");
+			dechiffrement(lire_fichier(argv[2]),lire_fichier(argv[3]));
 		}
 		else {
 			error_parsing_terminal_entry();
@@ -58,9 +58,27 @@ void parsing_terminal(int argc, char ** argv) {
 	}
 }
 
-// convertit un message en liste de 64 bits
 bc64 * convertir_message_64_bits(char * message) {
-	return NULL;
+	unsigned long int taille_message = strlen(message);
+	int nbr_bloc = (taille_message / 8) + 1;
+	bc64 * blocs = malloc(sizeof(bc64) * nbr_bloc);
+	int k = 0;
+	bc64 tmp = 0;
+	int bloc_inter = 0;
+	while( k < taille_message) {		
+		for(int i = 0 ; i < 8 ; i++) {
+			tmp = tmp << 8;
+			tmp = tmp | message[k]; 
+			if(message[k] == EOF) {
+				break;
+			}
+			k++;
+		} 
+		blocs[bloc_inter] = tmp;
+		tmp = 0;
+		bloc_inter ++;
+	}
+	return blocs;
 }
 
 // permutation initial
@@ -82,3 +100,21 @@ void chiffrement(char * message, char * cle) {
 void dechiffrement(char * message, char * cle) {
 	
 } 
+
+char * lire_fichier(char * chemin) {
+	FILE * fichier;
+	fichier = fopen(chemin,"r");
+	if(fichier == NULL) {
+		return chemin;
+	}
+	char * res = malloc(sizeof(char) * 500);
+	if(res == NULL) {
+		fprintf(stderr,"Erreur d'allocation mémoire pour lire fichier");
+		exit(EXIT_FAILURE);
+	}
+	char c;
+	for(int i = 0; (c = fgetc(fichier)) != EOF; i++) {
+		res[i] = c;
+	} 
+	return res;
+}

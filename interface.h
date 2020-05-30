@@ -55,4 +55,11 @@ void chiffrement(char * message, char * cle);
  * */ 
 void dechiffrement(char * message, char * cle);
 
+/** 
+ * Permet de lire un fichier
+ * par défaut renvoie le nom du chemin
+ * @param chemin
+ * @return le résultat
+ * */
+char * lire_fichier(char * chemin);
 #endif //_interface_h

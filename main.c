@@ -14,6 +14,6 @@
 
 int main(int argc, char ** argv) {
 	//~ parsing_terminal(argc,argv);
-	
+	bc64 * blocs = convertir_message_64_bits("testtesttesttest");
 	exit(EXIT_SUCCESS);
 } 
