@@ -50,6 +50,10 @@ void parsing_terminal(int argc, char ** argv) {
 
 bc64 * convertir_message_64_bits(char * message, int taille_message, int nbr_bloc) {
 	bc64 * blocs = malloc(sizeof(bc64) * nbr_bloc);
+	if(blocs == NULL) {
+		fprintf(stderr,"Erreur d'allocation de mémoire");
+		exit(EXIT_FAILURE);
+	}
 	int k = 0;
 	bc64 tmp = 0;
 	int bloc_inter = 0;
@@ -69,10 +73,13 @@ bc64 * convertir_message_64_bits(char * message, int taille_message, int nbr_blo
 	return blocs;
 }
 
-// permet de chiffrer un message
 void chiffrement(char * message, char * cle) {	
 	int * (*pointeur) = malloc(sizeof(int *) * NBR_TABLEAUX); // liste de pointeurs pour choisir quel tableau on utilise
-    init_pointeur(pointeur);
+    if(*pointeur == NULL) {
+		fprintf(stderr,"Erreur d'allocation de mémoire");
+		exit(EXIT_FAILURE);
+	}
+	init_pointeur(pointeur);
 	unsigned long int taille_message = strlen(message);
 	int nbr_bloc = ((taille_message - 1) / 8) + 1;
 
