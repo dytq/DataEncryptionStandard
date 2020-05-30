@@ -26,7 +26,7 @@ void parsing_terminal(int argc, char ** argv);
  * @param message
  * @return une liste de blocs
  * */
-bc64 * convertir_message_64_bits(char * message);
+bc64 * convertir_message_64_bits(char * message, int taille_message, int nbr_bloc);
 
 /**
  * Permutation initial du bloc de 64 bits

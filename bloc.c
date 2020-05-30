@@ -148,9 +148,51 @@ void init_pointeur(int ** pointeur) {
     pointeur[13] = E;
 }
 
-bc64 swap_bloc(bc64 text, int * pointeur) {
+bc64 swap_bloc_64(bc64 text, int * pointeur) {
     bc64 bit;
 	bc64 res = 0;
+	int i = 0;
+	while(text != 0) {
+		bit = text & 1;
+		bit = bit << (*(pointeur + i) - 1);
+		res = res | bit;	
+		text = text >> 1;
+		i++;
+	}
+	return res;
+}
+
+bc64 swap_bloc_32(bc32 text, int * pointeur) {
+    bc32 bit;
+	bc32 res = 0;
+	int i = 0;
+	while(text != 0) {
+		bit = text & 1;
+		bit = bit << (*(pointeur + i) - 1);
+		res = res | bit;	
+		text = text >> 1;
+		i++;
+	}
+	return res;
+}
+
+bc64 swap_bloc_28(bc28 text, int * pointeur) {
+    bc28 bit;
+	bc28 res = 0;
+	int i = 0;
+	while(text != 0) {
+		bit = text & 1;
+		bit = bit << (*(pointeur + i) - 1);
+		res = res | bit;	
+		text = text >> 1;
+		i++;
+	}
+	return res;
+}
+
+bc64 swap_bloc_48(bc48 text, int * pointeur) {
+    bc48 bit;
+	bc48 res = 0;
 	int i = 0;
 	while(text != 0) {
 		bit = text & 1;

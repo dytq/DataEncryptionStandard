@@ -6,6 +6,8 @@ typedef struct {
 	bc32 droite;
 } bc_text_s;
 
+#define NBR_TABLEAUX 14
+
 void afficher_aide() {
 	printf("AIDE pour DES:\n");
 	printf("TAPER ./out {option} {FICHIER A IMPORTER} {MOT_DE_PASSE}\n");
@@ -46,20 +48,18 @@ void parsing_terminal(int argc, char ** argv) {
 	}
 }
 
-bc64 * convertir_message_64_bits(char * message) {
-	unsigned long int taille_message = strlen(message);
-	int nbr_bloc = (taille_message / 8) + 1;
+bc64 * convertir_message_64_bits(char * message, int taille_message, int nbr_bloc) {
 	bc64 * blocs = malloc(sizeof(bc64) * nbr_bloc);
 	int k = 0;
 	bc64 tmp = 0;
 	int bloc_inter = 0;
 	while(k < taille_message) {		
 		for(int i = 0 ; i < 8 ; i++) {
-			tmp = tmp << 8;
-			tmp = tmp | message[k]; 
-			if(message[k] == EOF) {
+			if(message[k] == '\0') { // on ne chiffre pas le caractere de fin de chaine
 				break;
 			}
+			tmp = tmp << 8;
+			tmp = tmp | message[k]; 
 			k++;
 		} 
 		blocs[bloc_inter] = tmp;
@@ -71,7 +71,33 @@ bc64 * convertir_message_64_bits(char * message) {
 
 // permet de chiffrer un message
 void chiffrement(char * message, char * cle) {	
+	int * (*pointeur) = malloc(sizeof(int *) * NBR_TABLEAUX); // liste de pointeurs pour choisir quel tableau on utilise
+    init_pointeur(pointeur);
+	unsigned long int taille_message = strlen(message);
+	int nbr_bloc = ((taille_message - 1) / 8) + 1;
+
+	bc64 * blocs = convertir_message_64_bits(message, taille_message, nbr_bloc);
 	
+	// init la liste des 16 clés
+
+	for(int i = 0 ; i < nbr_bloc ; i++) {
+		swap_bloc_64(blocs[i], pointeur[0]);
+		// algo chiffrement des:
+		// init les deux branches 
+		for(int j = 0 ; j < 8 ; j++) {
+			// on F gauche
+			// on xor droite et gauche
+			// on F droite
+			// on xor droite et gauche
+		}
+		swap_bloc_64(blocs[i], pointeur[1]);
+	}
+	
+	for(int i = 0 ; i < nbr_bloc ; i++) {
+		printf("[%lX]\n",blocs[i]); 
+	}
+	free(blocs);
+	free(pointeur);
 }
 
 //permet de dechiffrer un message
