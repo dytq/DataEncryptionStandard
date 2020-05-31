@@ -1,10 +1,10 @@
-# Mon implémentation de DES selon les standard NIST
+# Mon implémentation de DES (EN CONSTRUCTION)
 Simple implémentation de DES.
 
 # QUICK-START
 
 ## Lien a telecharger
-Telecharger les sources ici: 
+Telecharger les sources ici: NON_DISPONIBLE
 
 ## Run
 Consulté le manuel d'aide en faisant: 
