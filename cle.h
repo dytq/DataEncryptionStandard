@@ -2,6 +2,7 @@
 #define _cle_h
 
 #include "bloc.h"
+#include "interface.h"
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -13,18 +14,10 @@ typedef struct {
 
 //~ void hachage() -> c'est pour la fonction de hachage si j'ai envie de la faire...
 
-/**
- * Fonction de permutation PC1
- * @param la clé de 64 bits
- * @return la fonction de retour
- * */ 
-bc_cle_s permutation_initial_cle(bc64 cle);
+void init_cles(char * mot_de_passe, bc_cle_s * B, int ** pointeur);
 
-/**
- * Fonction de permutation PC2 qui genere une clé de 48 bits
- * @param la structure de donnée ou contient la partie gauche et droite shifté
- * @return un bloc de 48 bits pour etre xor avec le texte dans le shéma de feistel
- * */
-bc48 genere_cle_48_bits(bc_cle_s B);
+bc_cle_s permutation_initial_cle(bc64 cle, int ** pointeur);
+
+bc48 genere_cle_48_bits(bc_cle_s B,int * pointeur);
 
 #endif // _cle_h

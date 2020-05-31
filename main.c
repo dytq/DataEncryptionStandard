@@ -1,5 +1,3 @@
-/* Implémentation de DES juste pour le fun de coder ;-) */
-
 /* Bibliothèques */
 #include <stdlib.h>
 #include <stdio.h>
@@ -14,6 +12,6 @@
 
 int main(int argc, char ** argv) {
 	//parsing_terminal(argc,argv);
-	chiffrement("testtest","test");
+	chiffrement("testdesd","test");
 	exit(EXIT_SUCCESS);
 } 

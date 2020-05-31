@@ -131,6 +131,21 @@ int E[48] = {
 	28,29,30,31,32,1 
 };
 
+// Matrice qui supprime les bits de parités
+int POST_PC1[56] = {
+	1 ,2 ,3 ,4 ,5 ,6 ,7 ,9 ,
+	10,11,12,13,14,15,17,
+	18,19,20,21,22,23,25,
+	26,27,28,29,30,31,33,
+	34,35,36,37,38,39,41,
+	42,43,44,45,46,47,49,
+	50,51,52,53,54,55,57,
+	58,59,60,61,62,63
+};
+
+// shift cle
+int CS[16] = { 1,1,2,2,2,2,2,2,1,2,2,2,2,2,2,1 };
+
 void init_pointeur(int ** pointeur) {
     pointeur[0] = IP;
     pointeur[1] = IP_INV;
@@ -146,6 +161,8 @@ void init_pointeur(int ** pointeur) {
     pointeur[11] = PC_1G;
     pointeur[12] = PC_2;
     pointeur[13] = E;
+	pointeur[14] = CS;
+	pointeur[15] = POST_PC1;
 }
 
 bc64 swap_bloc_64(bc64 text, int * pointeur) {
@@ -200,6 +217,29 @@ bc64 swap_bloc_48(bc48 text, int * pointeur) {
 		res = res | bit;	
 		text = text >> 1;
 		i++;
+	}
+	return res;
+}
+bc56 swap_bloc_64_to_56(bc64 text, int * pointeur) {
+	bc64 bit;
+	bc56 res = 0;
+	for(int i = 0 ; i < 56 ; i++) {
+		bit = text & 1;
+		bit = bit << (*(pointeur + i) - 1);
+		res = res | bit;
+		text = text >> 1;
+	}
+	return res;
+}
+
+bc48 swap_bloc_56_to_48(bc56 text, int * pointeur) {
+	bc56 bit;
+	bc48 res = 0;
+	for(int i = 0 ; i < 48 ; i++) {
+		bit = text & 1;
+		bit = bit << (*(pointeur + i) - 1);
+		res = res | bit;
+		text = text >> 1;
 	}
 	return res;
 }

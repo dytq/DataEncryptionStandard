@@ -1,13 +1,5 @@
 #include "interface.h"
 
-// Pour chiffrer/dechiffrer un bloc de 64 bits
-typedef struct {
-	bc32 gauche;
-	bc32 droite;
-} bc_text_s;
-
-#define NBR_TABLEAUX 14
-
 void afficher_aide() {
 	printf("AIDE pour DES:\n");
 	printf("TAPER ./out {option} {FICHIER A IMPORTER} {MOT_DE_PASSE}\n");
@@ -73,41 +65,69 @@ bc64 * convertir_message_64_bits(char * message, int taille_message, int nbr_blo
 	return blocs;
 }
 
-void chiffrement(char * message, char * cle) {	
+bc_text_s init_bc_text(bc64 text) {
+	bc_text_s B;
+	B.gauche = text >> 32;
+	B.droite = text; 
+	return B;
+}
+bc48 double_shift_bc48(bc48 moitie_cle, int shift) {
+	return moitie_cle << shift | moitie_cle >> (48 - shift);
+}
+void chiffrement(char * message, char * mot_depasse) {	
 	int * (*pointeur) = malloc(sizeof(int *) * NBR_TABLEAUX); // liste de pointeurs pour choisir quel tableau on utilise
-    if(*pointeur == NULL) {
-		fprintf(stderr,"Erreur d'allocation de mémoire");
-		exit(EXIT_FAILURE);
-	}
 	init_pointeur(pointeur);
 	unsigned long int taille_message = strlen(message);
 	int nbr_bloc = ((taille_message - 1) / 8) + 1;
 
 	bc64 * blocs = convertir_message_64_bits(message, taille_message, nbr_bloc);
-	
-	// init la liste des 16 clés
+	/* Generation de cles */
+	bc48 sous_cle;
+	// on hache le mot de passe a chaque itération pour le randomiser
+	bc_cle_s * cle = malloc(sizeof(bc_cle_s));
 
 	for(int i = 0 ; i < nbr_bloc ; i++) {
 		swap_bloc_64(blocs[i], pointeur[0]);
-		// algo chiffrement des:
-		// init les deux branches 
+		bc_text_s B = init_bc_text(blocs[i]);
+		// hache(mot_de_passe, 64);
+		init_cles("testtest", cle,  pointeur); 
+		int k = 0; // va de 0 a 15
 		for(int j = 0 ; j < 8 ; j++) {
+			cle->gauche = double_shift_bc48(cle->gauche, (*pointeur[14] + 0));
+			cle->droite = double_shift_bc48(cle->droite, (*pointeur[14] + 0));
+			sous_cle = genere_cle_48_bits(*cle, pointeur[12]);
+			printf("resultat: %lX\n",sous_cle);
 			// on F gauche
+			B.gauche = feistel(B.gauche,sous_cle,pointeur);
 			// on xor droite et gauche
+			B.droite = B.droite ^ B.gauche;
+			k++;
+			cle->gauche = double_shift_bc48(cle->gauche, (*pointeur[14] + 0));
+			cle->droite = double_shift_bc48(cle->droite, (*pointeur[14] + 0));
+			sous_cle = genere_cle_48_bits(*cle, pointeur[12]);
+			printf("resultat: %lX\n",sous_cle);
 			// on F droite
+			B.droite = feistel(B.droite,sous_cle,pointeur);
 			// on xor droite et gauche
+			B.gauche = B.gauche ^ B.droite;
+			k++;
 		}
+		blocs[i] = 0;
+		blocs[i] = B.gauche;
+		blocs[i] = blocs[i] << 32;
+		blocs[i] = blocs[i] | B.droite;
 		swap_bloc_64(blocs[i], pointeur[1]);
 	}
 	
 	for(int i = 0 ; i < nbr_bloc ; i++) {
 		printf("[%lX]\n",blocs[i]); 
 	}
+	
 	free(blocs);
 	free(pointeur);
+	free(cle);
 }
 
-//permet de dechiffrer un message
 void dechiffrement(char * message, char * cle) {
 	
 } 

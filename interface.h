@@ -5,6 +5,13 @@
 #include <stdlib.h>
 #include <string.h>
 #include "bloc.h"
+#include "feistel.h"
+#include "cle.h"
+
+typedef struct {
+    bc32 gauche;
+    bc32 droite;
+} bc_text_s;
 
 /**
  * Permet d'afficher l'aide sur le terminal
@@ -27,19 +34,6 @@ void parsing_terminal(int argc, char ** argv);
  * @return une liste de blocs
  * */
 bc64 * convertir_message_64_bits(char * message, int taille_message, int nbr_bloc);
-
-/**
- * Permutation initial du bloc de 64 bits
- * @param le texte
- * @return le texte permuté
- * */
-bc64 permutation_initial(bc64 text);
-/**
- * Permutation inverse
- * @param le texte
- * @return le texte permuté de l'autre sens
- * */
-bc64 permutation_final(bc64 text);
 
 /**
  * chiffrement
