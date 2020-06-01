@@ -18,6 +18,6 @@ void init_cles(char * mot_de_passe, bc_cle_s * B, int ** pointeur);
 
 bc_cle_s permutation_initial_cle(bc64 cle, int ** pointeur);
 
-bc48 genere_cle_48_bits(bc_cle_s B,int * pointeur);
+bc48 genere_cle_48_bits(bc_cle_s * B,int * pointeur);
 
 #endif // _cle_h

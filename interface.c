@@ -71,9 +71,11 @@ bc_text_s init_bc_text(bc64 text) {
 	B.droite = text; 
 	return B;
 }
-bc48 double_shift_bc48(bc48 moitie_cle, int shift) {
-	return moitie_cle << shift | moitie_cle >> (48 - shift);
+bc48 double_shift_bc28(bc48 value, int shift) {
+	shift = shift % 28;
+	return value >> (28 - shift) | value << shift;
 }
+
 void chiffrement(char * message, char * mot_depasse) {	
 	int * (*pointeur) = malloc(sizeof(int *) * NBR_TABLEAUX); // liste de pointeurs pour choisir quel tableau on utilise
 	init_pointeur(pointeur);
@@ -85,7 +87,6 @@ void chiffrement(char * message, char * mot_depasse) {
 	bc48 sous_cle;
 	// on hache le mot de passe a chaque itération pour le randomiser
 	bc_cle_s * cle = malloc(sizeof(bc_cle_s));
-
 	for(int i = 0 ; i < nbr_bloc ; i++) {
 		swap_bloc_64(blocs[i], pointeur[0]);
 		bc_text_s B = init_bc_text(blocs[i]);
@@ -93,19 +94,17 @@ void chiffrement(char * message, char * mot_depasse) {
 		init_cles("testtest", cle,  pointeur); 
 		int k = 0; // va de 0 a 15
 		for(int j = 0 ; j < 8 ; j++) {
-			cle->gauche = double_shift_bc48(cle->gauche, (*pointeur[14] + 0));
-			cle->droite = double_shift_bc48(cle->droite, (*pointeur[14] + 0));
-			sous_cle = genere_cle_48_bits(*cle, pointeur[12]);
-			printf("resultat: %lX\n",sous_cle);
+			cle->gauche = double_shift_bc28(cle->gauche, (*(pointeur[14] + k)));
+			cle->droite = double_shift_bc28(cle->droite, (*(pointeur[14] + k)));
+			sous_cle = genere_cle_48_bits(cle, pointeur[12]);
 			// on F gauche
 			B.gauche = feistel(B.gauche,sous_cle,pointeur);
 			// on xor droite et gauche
 			B.droite = B.droite ^ B.gauche;
 			k++;
-			cle->gauche = double_shift_bc48(cle->gauche, (*pointeur[14] + 0));
-			cle->droite = double_shift_bc48(cle->droite, (*pointeur[14] + 0));
-			sous_cle = genere_cle_48_bits(*cle, pointeur[12]);
-			printf("resultat: %lX\n",sous_cle);
+			cle->gauche = double_shift_bc28(cle->gauche, (*(pointeur[14] + k)));
+			cle->droite = double_shift_bc28(cle->droite, (*(pointeur[14] + k)));
+			sous_cle = genere_cle_48_bits(cle, pointeur[12]);
 			// on F droite
 			B.droite = feistel(B.droite,sous_cle,pointeur);
 			// on xor droite et gauche
@@ -122,7 +121,6 @@ void chiffrement(char * message, char * mot_depasse) {
 	for(int i = 0 ; i < nbr_bloc ; i++) {
 		printf("[%lX]\n",blocs[i]); 
 	}
-	
 	free(blocs);
 	free(pointeur);
 	free(cle);
