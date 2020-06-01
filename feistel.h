@@ -18,6 +18,6 @@ bc32 feistel(bc32 moitie_bloc, bc48 sous_cle, int ** pointeur);
  * @param un bloc de 48 bits 
  * @return le bloc de 32 bits
  * */
-bc32 fonctionS(bc48 text);
+bc32 fonctionS(bc48 text, int ** pointeur);
 
 #endif // _feistel_h
