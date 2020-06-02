@@ -84,29 +84,28 @@ void chiffrement(char * message, char * mot_depasse) {
 
 	bc64 * blocs = convertir_message_64_bits(message, taille_message, nbr_bloc);
 	/* Generation de cles */
-	bc48 sous_cle;
-	// on hache le mot de passe a chaque itération pour le randomiser
+	bc48 * sous_cle = malloc(sizeof(bc48) * 16);
 	bc_cle_s * cle = malloc(sizeof(bc_cle_s));
+	init_cles("testtest", cle,  pointeur); 
+	for(int i = 0 ; i < 16 ; i++) {
+		cle->gauche = double_shift_bc28(cle->gauche, (*(pointeur[14] + i)));
+		cle->droite = double_shift_bc28(cle->droite, (*(pointeur[14] + i)));	
+		sous_cle[i] = genere_cle_48_bits(cle, pointeur[12]);
+	}
+
 	for(int i = 0 ; i < nbr_bloc ; i++) {
 		swap_bloc_64(blocs[i], pointeur[0]);
 		bc_text_s B = init_bc_text(blocs[i]);
 		// hache(mot_de_passe, 64);
-		init_cles("testtest", cle,  pointeur); 
 		int k = 0; // va de 0 a 15
 		for(int j = 0 ; j < 8 ; j++) {
-			cle->gauche = double_shift_bc28(cle->gauche, (*(pointeur[14] + k)));
-			cle->droite = double_shift_bc28(cle->droite, (*(pointeur[14] + k)));
-			sous_cle = genere_cle_48_bits(cle, pointeur[12]);
 			// on F gauche
-			B.gauche = feistel(B.gauche,sous_cle,pointeur);
+			B.gauche = feistel(B.gauche,sous_cle[k],pointeur);
 			// on xor droite et gauche
 			B.droite = B.droite ^ B.gauche;
 			k++;
-			cle->gauche = double_shift_bc28(cle->gauche, (*(pointeur[14] + k)));
-			cle->droite = double_shift_bc28(cle->droite, (*(pointeur[14] + k)));
-			sous_cle = genere_cle_48_bits(cle, pointeur[12]);
 			// on F droite
-			B.droite = feistel(B.droite,sous_cle,pointeur);
+			B.droite = feistel(B.droite,sous_cle[k],pointeur);
 			// on xor droite et gauche
 			B.gauche = B.gauche ^ B.droite;
 			k++;
