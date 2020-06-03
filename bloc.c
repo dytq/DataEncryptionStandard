@@ -93,11 +93,15 @@ int P[32] = {
 };
 
 // partie gauche de la clé
-int PC_1G [28] = {
-	57,49,41,33,25,17,9 ,
-	1 ,58,50,42,34,26,18,
-	10,2 ,59,51,43,35,27,
-	19,11,3 ,60,52,44,36
+int PC_1 [56] = {
+	57,   49,    41,   33,    25,    17,    9,
+	1,   58,    50,   42,    34,    26,   18,
+	10,    2,    59,   51,    43,    35,   27,
+	19,   11,     3,   60,    52,    44,   36,
+	63,   55,    47,   39,    31,    23,   15,
+	7,   62,    54,   46,    38,    30,   22,
+	14,    6,    61,   53,    45,    37,   29,
+	21,   13,     5,   28,    20,    12,    4
 };
 
 // partie droite de la clé
@@ -158,7 +162,7 @@ void init_pointeur(int ** pointeur) {
     pointeur[8] = S7;
     pointeur[9] = P;
     pointeur[10] = PC_1D;
-    pointeur[11] = PC_1G;
+    pointeur[11] = PC_1;
     pointeur[12] = PC_2;
     pointeur[13] = E;
 	pointeur[14] = CS;
@@ -223,11 +227,13 @@ bc64 swap_bloc_48(bc48 text, int * pointeur) {
 bc56 swap_bloc_64_to_56(bc64 text, int * pointeur) {
 	bc64 bit;
 	bc56 res = 0;
+	bc64 copie = text;
 	for(int i = 0 ; i < 56 ; i++) {
-		bit = text & 1;
-		bit = bit << (*(pointeur + i) - 1);
+		res = res << (1*!(!i));
+		copie = copie >> (pointeur[i] - 1);
+		bit = copie & 1;
 		res = res | bit;
-		text = text >> 1;
+		copie = text;
 	}
 	return res;
 }
@@ -235,11 +241,13 @@ bc56 swap_bloc_64_to_56(bc64 text, int * pointeur) {
 bc48 swap_bloc_56_to_48(bc56 text, int * pointeur) {
 	bc56 bit;
 	bc48 res = 0;
+	bc56 copie = text;
 	for(int i = 0 ; i < 48 ; i++) {
-		bit = text & 1;
-		bit = bit << (*(pointeur + i) - 1);
+		res = res << (1*!(!i));
+		copie = copie >> (pointeur[i] - 1);
+		bit = copie & 1;
 		res = res | bit;
-		text = text >> 1;
+		copie = text;
 	}
 	return res;
 }
