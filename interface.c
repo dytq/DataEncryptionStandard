@@ -101,7 +101,7 @@ void chiffrement(char * message, char * mot_depasse) {
 	/* Generation de cles */
 	bc48 * sous_cle = malloc(sizeof(bc48) * 16);
 	bc_cle_s * cle = malloc(sizeof(bc_cle_s));
-	init_cles("testtest", cle,  pointeur); 
+	init_cles("testtest", cle,  pointeur);
 	for(int i = 0 ; i < 16 ; i++) {
 		cle->gauche = double_shift_bc28(cle->gauche, (*(pointeur[14] + i)));
 		cle->droite = double_shift_bc28(cle->droite, (*(pointeur[14] + i)));	
@@ -109,10 +109,15 @@ void chiffrement(char * message, char * mot_depasse) {
 		sous_cle[i] = genere_cle_48_bits(cle, pointeur[12]);
 		printf("%lX\n",sous_cle[i]);
 	} 
-
-	blocs[0] = 0x02468aceeca86420;
-	printf("text:%lX\n",blocs[0]);
-
+	blocs[0] = 0x123456abcd132536;
+	printf("init text:%lX\n",blocs[0]);
+	blocs[0] = reverse_64_bits(blocs[0]);
+	blocs[0] = swap_bloc_64(blocs[0],pointeur[0]);
+	bc_text_s B = init_bc_text(blocs[0]);
+	printf("Split:\n");
+	printf("L[0]=%X\n",B.gauche);
+	printf("R[0]=%X\n",B.droite);
+	/*
 	for(int i = 0 ; i < nbr_bloc ; i++) {
 		blocs[i] = swap_bloc_64(blocs[i], pointeur[0]);
 		printf("IP:%lX\n",blocs[i]);
@@ -134,61 +139,6 @@ void chiffrement(char * message, char * mot_depasse) {
 		blocs[i] = swap_bloc_64(blocs[i], pointeur[1]);
 	}
 	
-	for(int i = 0 ; i < nbr_bloc ; i++) {
-		printf("[%lX]\n",blocs[i]); 
-	}
-	printf("\n\n\n");
-
-	for(int i = 0 ; i < nbr_bloc ; i++) {
-		blocs[i] = swap_bloc_64(blocs[i], pointeur[0]);
-		printf("IP:%lX\n",blocs[i]);
-		bc_text_s B = init_bc_text(blocs[i]);
-		printf("L[0]=%X\n",B.gauche);
-		printf("R[0]=%X\n",B.droite);
-		bc32 tmp = 0;
-		for(int j = 15 ; j >= 0; j--) {
-			tmp = B.droite;
-			B.droite = B.gauche ^ feistel(B.droite,sous_cle[j],pointeur);
-			B.gauche = tmp;
-			printf("L[%d]=%X, R[%d] %X et cle:%lX\n",j+1,B.gauche,j+1,B.droite,sous_cle[j]);
-		}
-	
-		blocs[i] = 0;
-		blocs[i] = B.gauche;
-		blocs[i] = blocs[i] << 32;
-		blocs[i] = blocs[i] | B.droite;
-	
-		blocs[i] = swap_bloc_64(blocs[i], pointeur[1]);
-	}
-
-	for(int i = 0 ; i < nbr_bloc ; i++) {
-		printf("[%lX]\n",blocs[i]); 
-	}
-	
-	/*
-	for(int i = 0 ; i < nbr_bloc ; i++) {
-		blocs[i] = swap_bloc_64(blocs[i], pointeur[0]);
-		bc_text_s B = init_bc_text(blocs[i]);
-		int k = 15; // va de 0 a 15
-		for(int j = 0 ; j < 8 ; j++) {
-			B.droite = feistel(B.droite,sous_cle[k],pointeur);
-			// on xor droite et gauche
-			B.gauche = B.gauche ^ B.droite;
-			k--;
-			// on F gauche
-			B.gauche = feistel(B.gauche,sous_cle[k],pointeur);
-			// on xor droite et gauche
-			B.droite = B.droite ^ B.gauche;
-			k--;
-			// on F droite
-		}
-		blocs[i] = 0;
-		blocs[i] = B.gauche;
-		blocs[i] = blocs[i] << 32;
-		blocs[i] = blocs[i] | B.droite;
-		blocs[i] = swap_bloc_64(blocs[i], pointeur[1]);
-	}
-
 	for(int i = 0 ; i < nbr_bloc ; i++) {
 		printf("[%lX]\n",blocs[i]); 
 	}
