@@ -14,4 +14,4 @@ int main(int argc, char ** argv) {
 	//parsing_terminal(argc,argv);
 	chiffrement("testdesd","test");
 	exit(EXIT_SUCCESS);
-} 
+}

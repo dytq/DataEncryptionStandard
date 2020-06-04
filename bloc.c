@@ -104,14 +104,6 @@ int PC_1 [56] = {
 	21,   13,     5,   28,    20,    12,    4
 };
 
-// partie droite de la clé
-int PC_1D [28] = {
-	63,55,47,39,31,23,15,
-	7 ,62,54,46,38,30,22,
-	14,6 ,61,53,45,37,29,
-	21,13,5 ,28,20,12,4 
-};
-
 // Transposition avec oubli
 int PC_2 [48] = {
 	14,17,11,24,1 ,5 ,
@@ -135,18 +127,6 @@ int E[48] = {
 	28,29,30,31,32,1 
 };
 
-// Matrice qui supprime les bits de parités
-int POST_PC1[56] = {
-	1 ,2 ,3 ,4 ,5 ,6 ,7 ,9 ,
-	10,11,12,13,14,15,17,
-	18,19,20,21,22,23,25,
-	26,27,28,29,30,31,33,
-	34,35,36,37,38,39,41,
-	42,43,44,45,46,47,49,
-	50,51,52,53,54,55,57,
-	58,59,60,61,62,63
-};
-
 // shift cle
 int CS[16] = { 1,1,2,2,2,2,2,2,1,2,2,2,2,2,2,1 };
 
@@ -160,53 +140,52 @@ void init_pointeur(int ** pointeur) {
     pointeur[6] = S5;
     pointeur[7] = S6;
     pointeur[8] = S7;
-    pointeur[9] = P;
-    pointeur[10] = PC_1D;
+	pointeur[9] = S8;
+    pointeur[10] = P;
     pointeur[11] = PC_1;
     pointeur[12] = PC_2;
     pointeur[13] = E;
 	pointeur[14] = CS;
-	pointeur[15] = POST_PC1;
 }
 
 bc64 swap_bloc_64(bc64 text, int * pointeur) {
-    bc64 bit;
+ 	bc64 bit;
 	bc64 res = 0;
-	int i = 0;
-	while(text != 0) {
-		bit = text & 1;
-		bit = bit << (*(pointeur + i) - 1);
-		res = res | bit;	
-		text = text >> 1;
-		i++;
+	bc64 copie = text;
+	for(int i = 0; i < 64; i++) {
+		res = res << (1*!(!i));
+		copie = copie >> (pointeur[i] - 1);
+		bit = copie & 1;
+		res = res | bit;
+		copie = text;
 	}
 	return res;
 }
 
-bc64 swap_bloc_32(bc32 text, int * pointeur) {
-    bc32 bit;
+bc32 swap_bloc_32(bc32 text, int * pointeur) {
+ 	bc32 bit;
 	bc32 res = 0;
-	int i = 0;
-	while(text != 0) {
-		bit = text & 1;
-		bit = bit << (*(pointeur + i) - 1);
-		res = res | bit;	
-		text = text >> 1;
-		i++;
+	bc32 copie = text;
+	for(int i = 0; i < 32; i++) {
+		res = res << (1*!(!i));
+		copie = copie >> (pointeur[i] - 1);
+		bit = copie & 1;
+		res = res | bit;
+		copie = text;
 	}
 	return res;
 }
 
-bc64 swap_bloc_28(bc28 text, int * pointeur) {
-    bc28 bit;
-	bc28 res = 0;
-	int i = 0;
-	while(text != 0) {
-		bit = text & 1;
-		bit = bit << (*(pointeur + i) - 1);
-		res = res | bit;	
-		text = text >> 1;
-		i++;
+bc48 swap_bloc_32_to_48(bc32 text, int * pointeur) {
+   	bc48 bit;
+	bc48 res = 0;
+	bc32 copie = text;
+	for(int i = 0; i < 48; i++) {
+		res = res << (1*!(!i));
+		copie = copie >> (pointeur[i] - 1);
+		bit = copie & 1;
+		res = res | bit;
+		copie = text;
 	}
 	return res;
 }
@@ -251,3 +230,59 @@ bc48 swap_bloc_56_to_48(bc56 text, int * pointeur) {
 	}
 	return res;
 }
+
+bc64 reverse_64_bits(bc64 v) {
+	unsigned long int r = v;
+	int s = sizeof(v) * 8 - 1;
+
+	for (v >>= 1; v; v >>= 1)
+	{   
+		r <<= 1;
+		r |= v & 1;
+		s--;
+	}
+	r <<= s; 
+	return r;
+} 
+
+bc32 reverse_32_bits(bc32 v) {
+	bc32 r = v;
+	int s = sizeof(v) * 8 - 1;
+
+	for (v >>= 1; v; v >>= 1)
+	{   
+		r <<= 1;
+		r |= v & 1;
+		s--;
+	}
+	r <<= s; 
+	return r;
+} 
+
+
+bc56 reverse_56_bits(bc64 v) {
+	unsigned long int r = v; 
+	int s = sizeof(v) * 8 - 1; 
+
+	for (v >>= 1; v; v >>= 1)
+	{   
+		r <<= 1;
+		r |= v & 1;
+		s--;
+	}
+	r <<= s;  
+	return r >> 8;
+} 
+bc56 reverse_48_bits(bc64 v) {
+	unsigned long int r = v; 
+	int s = sizeof(v) * 8 - 1; 
+
+	for (v >>= 1; v; v >>= 1)
+	{   
+		r <<= 1;
+		r |= v & 1;
+		s--;
+	}
+	r <<= s;  
+	return r >> 16;
+} 

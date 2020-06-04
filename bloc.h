@@ -22,8 +22,8 @@ typedef unsigned char bc4;
  * */
 bc64 swap_bloc_64(bc64 text, int * pointeur);
 bc64 swap_bloc_48(bc48 text, int * pointeur);
-bc64 swap_bloc_32(bc32 text, int * pointeur);
-bc64 swap_bloc_28(bc28 text, int * pointeur);
+bc32 swap_bloc_32(bc32 text, int * pointeur);
+bc48 swap_bloc_32_to_48(bc32 text, int * pointeur);
 bc56 swap_bloc_64_to_56(bc64 text, int * pointeur);
 bc48 swap_bloc_56_to_48(bc56 text, int * pointeur);
 
@@ -32,5 +32,8 @@ bc48 swap_bloc_56_to_48(bc56 text, int * pointeur);
  * @param le pointeur qui va pointé sur chaque tableau statique
  * */
 void init_pointeur(int ** pointeur);
-
+bc56 reverse_56_bits(bc64 v);
+bc64 reverse_64_bits(bc64 v);
+bc32 reverse_32_bits(bc32 v);
+bc56 reverse_48_bits(bc64 v);
 #endif 
