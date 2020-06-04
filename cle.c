@@ -4,7 +4,6 @@ void init_cles(char * mot_de_passe, bc_cle_s * B, int ** pointeur) {
 	bc64 * blocs;
 	int taille_cle = strlen(mot_de_passe);
 	blocs = convertir_message_64_bits(mot_de_passe,taille_cle,1);
-	blocs[0] = reverse_64_bits(0x0f1571c947d9e859); // reverse
 	*B = permutation_initial_cle(*(blocs), pointeur);
 	free(blocs);
 }
@@ -23,6 +22,6 @@ bc48 genere_cle_48_bits(bc_cle_s * C, int * pointeur) {
 	bc56 cle = C->gauche;
 	cle = cle << 28;
 	cle = cle | C->droite;
-	cle = reverse_56_bits(cle);
+	cle = cle;
 	return swap_bloc_56_to_48(cle,pointeur);
 }

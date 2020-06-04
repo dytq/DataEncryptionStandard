@@ -83,7 +83,7 @@ void chiffrement(char * message, char * mot_depasse) {
 	int nbr_bloc = ((taille_message - 1) / 8) + 1;
 
 	bc64 * blocs = convertir_message_64_bits(message, taille_message, nbr_bloc);
-	blocs[0] = 0x123456789ABCDEF;
+	//blocs[0] = 0x123456789ABCDEF;
 	/*blocs[0] = 0x0123456789abcdef;
 	printf("hexa:");
 	for(int i = 0 ; i < nbr_bloc ; i++) {
@@ -105,11 +105,15 @@ void chiffrement(char * message, char * mot_depasse) {
 	for(int i = 0 ; i < 16 ; i++) {
 		cle->gauche = double_shift_bc28(cle->gauche, (*(pointeur[14] + i)));
 		cle->droite = double_shift_bc28(cle->droite, (*(pointeur[14] + i)));	
+		printf("cle gauche %X : cle droite : %X \n",cle->gauche,cle->droite);
 		sous_cle[i] = genere_cle_48_bits(cle, pointeur[12]);
+		printf("%lX\n",sous_cle[i]);
 	} 
 
+	blocs[0] = 0x02468aceeca86420;
+	printf("text:%lX\n",blocs[0]);
+
 	for(int i = 0 ; i < nbr_bloc ; i++) {
-		blocs[i] = reverse_64_bits(blocs[i]);
 		blocs[i] = swap_bloc_64(blocs[i], pointeur[0]);
 		printf("IP:%lX\n",blocs[i]);
 		bc_text_s B = init_bc_text(blocs[i]);
@@ -117,6 +121,32 @@ void chiffrement(char * message, char * mot_depasse) {
 		printf("R[0]=%X\n",B.droite);
 		bc32 tmp = 0;
 		for(int j = 0 ; j < 16 ; j++) {
+			B.gauche = B.gauche ^ feistel(B.droite,sous_cle[j],pointeur);
+			B.droite = B.droite ^ feistel(B.gauche,sous_cle[j],pointeur);
+			printf("L[%d]=%X, R[%d] %X et cle:%lX\n",j+1,B.gauche,j+1,B.droite,sous_cle[j]);
+		}
+	
+		blocs[i] = 0;
+		blocs[i] = B.gauche;
+		blocs[i] = blocs[i] << 32;
+		blocs[i] = blocs[i] | B.droite;
+	
+		blocs[i] = swap_bloc_64(blocs[i], pointeur[1]);
+	}
+	
+	for(int i = 0 ; i < nbr_bloc ; i++) {
+		printf("[%lX]\n",blocs[i]); 
+	}
+	printf("\n\n\n");
+
+	for(int i = 0 ; i < nbr_bloc ; i++) {
+		blocs[i] = swap_bloc_64(blocs[i], pointeur[0]);
+		printf("IP:%lX\n",blocs[i]);
+		bc_text_s B = init_bc_text(blocs[i]);
+		printf("L[0]=%X\n",B.gauche);
+		printf("R[0]=%X\n",B.droite);
+		bc32 tmp = 0;
+		for(int j = 15 ; j >= 0; j--) {
 			tmp = B.droite;
 			B.droite = B.gauche ^ feistel(B.droite,sous_cle[j],pointeur);
 			B.gauche = tmp;
@@ -127,9 +157,10 @@ void chiffrement(char * message, char * mot_depasse) {
 		blocs[i] = B.gauche;
 		blocs[i] = blocs[i] << 32;
 		blocs[i] = blocs[i] | B.droite;
+	
 		blocs[i] = swap_bloc_64(blocs[i], pointeur[1]);
 	}
-	
+
 	for(int i = 0 ; i < nbr_bloc ; i++) {
 		printf("[%lX]\n",blocs[i]); 
 	}
