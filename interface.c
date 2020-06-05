@@ -80,10 +80,15 @@ bc28 double_shift_bc28(bc28 value, int shift) {
 	value = value << shift | value >> (28 - shift) ;
 	return reformate_28_bits(value);
 }
-bc64 * atoi_to_blocs_64_bits(char * message, int taille_message, int nbr_bloc) {
+bc64 * convertir_message_en_hexa_64_bits(char * message, int taille_message, int nbr_bloc) {
+	char *ptr;	
 	bc64 * blocs = malloc(sizeof(bc64) * nbr_bloc);
-	//for(int i = 0 ; i < taille_message ; i++) {
-	blocs[0] = 0xC0B7A8D05F3A829C;
+	char * buff = malloc(sizeof(char) * 16 + sizeof('\0'));
+	//for(int i = 0 ; i < nbr_bloc ; i++) {
+		printf("message: %lX\n",strtoul(message, &ptr, 16));
+		 printf("String part is |%s|\n", ptr);
+		 
+
 	//}
 	return blocs;
 }
@@ -96,7 +101,7 @@ void chiffrement(char * message, char * mot_depasse) {
 	int nbr_bloc = ((taille_message - 1) / 8) + 1;
 
 	bc64 * blocs = convertir_message_64_bits(message, taille_message, nbr_bloc);
-
+	
 	/* Generation de cles */
 	bc48 * sous_cle = malloc(sizeof(bc48) * 16);
 	bc_cle_s * cle = malloc(sizeof(bc_cle_s));
@@ -141,9 +146,9 @@ void chiffrement(char * message, char * mot_depasse) {
 		printf("[%lX]\n",blocs[i]); 
 	}
 	
-	// dechiffrement:
-	printf("DECHIF\n");
-	
+	free(blocs);
+	free(pointeur);
+	free(cle);
 }
 
 
@@ -152,11 +157,11 @@ void dechiffrement(char * message, char * mot_de_passe) {
 	init_pointeur(pointeur);
 	
 	unsigned long int taille_message = strlen(message);
-	int nbr_bloc = ((taille_message - 1) / 8) + 1;
+	int nbr_bloc = (((taille_message - 1) / 8) + 1) / 2;
 
-	bc64 * blocs = convertir_message_64_bits(message, taille_message, nbr_bloc);
-
-	/* Generation de cles */
+	bc64 * blocs = convertir_message_en_hexa_64_bits(message, taille_message, nbr_bloc);
+	/*
+	Generation de cles 
 	bc48 * sous_cle = malloc(sizeof(bc48) * 16);
 	bc_cle_s * cle = malloc(sizeof(bc_cle_s));
 	if(sous_cle == NULL || cle == NULL ) {
@@ -199,10 +204,11 @@ void dechiffrement(char * message, char * mot_de_passe) {
 	for(int i = 0 ; i < nbr_bloc ; i++) {
 		printf("[%lX]\n",blocs[i]); 
 	}
-
+	printf("fin\n");
 	free(blocs);
 	free(pointeur);
 	free(cle);
+	*/
 } 
 
 char * lire_fichier(char * chemin) {
