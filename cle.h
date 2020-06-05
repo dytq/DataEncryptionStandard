@@ -3,8 +3,10 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 #include "bloc.h"
+#include "interface.h"
 
 /* Bloc de clé de 56 bits composé de 28 bits pour gauche et droite */ 
 typedef struct {
