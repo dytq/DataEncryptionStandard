@@ -1,6 +1,7 @@
 #ifndef _bloc_h
 #define _bloc_h
-#define NBR_TABLEAUX 16
+/* le nombre de tableaux */
+#define NBR_TABLEAUX 14
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -16,9 +17,9 @@ typedef unsigned char bc4;
 
 /**
  * Fonction qui permet de faire des swap selon l'id du tableau à swaper souhaité
- * @param test a swaper (64,48,32,28) mieux optimiser  que 64_to56 et 56_to48
- * @param le pointeur des tableaux
- * @return le texte swaper
+ * @param text a swaper 
+ * @param le pointeur des tableaux a swap
+ * @return le texte swaper selon le format
  * */
 bc64 swap_bloc_64(bc64 text, int * pointeur);
 bc64 swap_bloc_48(bc48 text, int * pointeur);
@@ -28,13 +29,19 @@ bc56 swap_bloc_64_to_56(bc64 text, int * pointeur);
 bc48 swap_bloc_56_to_48(bc56 text, int * pointeur);
 
 /**
- * Fonction qui init le poiteur des tableaux
+ * Fonction qui init le pointeur des tableaux
  * @param le pointeur qui va pointé sur chaque tableau statique
  * */
 void init_pointeur(int ** pointeur);
 
-bc56 reverse_56_bits(bc64 v);
-bc64 reverse_64_bits(bc64 v);
-bc32 reverse_32_bits(bc32 v);
-bc56 reverse_48_bits(bc64 v);
+/**
+ * Fonction qui inverse le sens d'un binaire
+ * @param le binaire à inverser
+ * @return le binaire inverser
+ * */
+bc64 reverse_64_bits(bc64 valeur);
+bc56 reverse_56_bits(bc64 valeur);
+bc56 reverse_48_bits(bc64 valeur);
+bc32 reverse_32_bits(bc32 valeur);
+
 #endif 
