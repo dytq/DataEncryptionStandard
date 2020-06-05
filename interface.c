@@ -139,7 +139,7 @@ void chiffrement(char * message, char * mot_de_passe) {
 	}
 	
 	for(int i = 0 ; i < nbr_bloc ; i++) {
-		printf("[%lX]\n",blocs[i]); 
+		printf("%lX",blocs[i]); 
 	}
 	
 	free(blocs);
@@ -192,7 +192,7 @@ void dechiffrement(char * message, char * mot_de_passe) {
 	}
 	// il faut juste convertir
 	for(int i = 0 ; i < nbr_bloc ; i++) {
-		printf("[%lX]\n",blocs[i]); 
+		printf("%lX",blocs[i]); 
 	}
 	
 	free(blocs);
