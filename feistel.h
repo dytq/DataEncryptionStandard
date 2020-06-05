@@ -14,7 +14,15 @@
 bc32 feistel(bc32 moitie_bloc, bc48 sous_cle, int ** pointeur);
 
 /**
- * Permet d'appliquer la fonction S (si possible après de paralléliser mais il faut utiliser une structure de donnée)
+ * thread pour un bloc s (qu'on peut paralleliser)
+ * @param s le blocs de 6 bits d'entrée
+ * @param le pointeur vers la S boite correspondante
+ * @return la blocs de 4 bits de retour
+ * */
+bc4 thread_fonction_s(bc6 s,int * pointeur);
+
+/**
+ * Permet d'appliquer la fonction S 
  * @param un bloc de 48 bits 
  * @return le bloc de 32 bits
  * */
