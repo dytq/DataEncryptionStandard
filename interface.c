@@ -84,37 +84,30 @@ bc28 double_shift_bc28(bc28 value, int shift) {
 void chiffrement(char * message, char * mot_depasse) {	
 	int * (*pointeur) = malloc(sizeof(int *) * NBR_TABLEAUX); // liste de pointeurs pour choisir quel tableau on utilise
 	init_pointeur(pointeur);
+	
 	unsigned long int taille_message = strlen(message);
 	int nbr_bloc = ((taille_message - 1) / 8) + 1;
 
 	bc64 * blocs = convertir_message_64_bits(message, taille_message, nbr_bloc);
-	//blocs[0] = 0x123456789ABCDEF;
-	/*blocs[0] = 0x0123456789abcdef;
-	printf("hexa:");
-	for(int i = 0 ; i < nbr_bloc ; i++) {
-		printf("[%lX]\n",blocs[i]); 
-	}
-	printf("bin:");
-	bc64 copie = ~blocs[0];
-	for (int i = 0; i < 64; i++)
-	{
-		printf("%lX",copie & 1);
-		copie = copie >> 1;
-	}
-	printf("\n");
-	*/
+
 	/* Generation de cles */
 	bc48 * sous_cle = malloc(sizeof(bc48) * 16);
 	bc_cle_s * cle = malloc(sizeof(bc_cle_s));
+	if(sous_cle == NULL | cle == NULL ) {
+		fprintf(stderr,"Erreur d'allocation de mémoire\n");
+		exit(EXIT_FAILURE);
+	}
 	init_cles("testtest", cle,  pointeur);
+	// generer les 16 clées : 
 	for(int i = 0 ; i < 16 ; i++) {
 		cle->gauche = double_shift_bc28(cle->gauche, (*(pointeur[14] + i)));
 		cle->droite = double_shift_bc28(cle->droite, (*(pointeur[14] + i)));	
 		sous_cle[i] = genere_cle_48_bits(cle, pointeur[12]);
 	} 
 
+	// Feistel:
 	for(int i = 0 ; i < nbr_bloc ; i++) {
-		blocs[0] = 0x123456abcd032536;
+		blocs[0] = 0x123456abcd132536;
 		printf("init text:%lX\n",blocs[0]);
 		blocs[0] = reverse_64_bits(blocs[0]);
 		blocs[0] = swap_bloc_64(blocs[0],pointeur[0]);
@@ -143,6 +136,7 @@ void chiffrement(char * message, char * mot_depasse) {
 	for(int i = 0 ; i < nbr_bloc ; i++) {
 		printf("[%lX]\n",blocs[i]); 
 	}
+	
 	// dechiffrement:
 	printf("DECHIF\n");
 	for(int i = 0 ; i < nbr_bloc ; i++) {
