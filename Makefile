@@ -5,14 +5,14 @@ CFLAGS = -g -Wall -c
 OBJ = $(wildcard *.o)
 GCH = $(wildcard *.h.gch)
 
-all:app.out
+all:des.out
 
 # run 
-run:app.out
-	./app.out
+run:des.out
+	./des.out
 
 # Edition de lien du programme principal
-app.out: main.o feistel.o interface.o cle.o feistel.o bloc.o
+des.out: main.o feistel.o interface.o cle.o feistel.o bloc.o
 	gcc -o $@ $^ ${LFLAGS}
 
 # Compilation du programme principal
@@ -34,9 +34,9 @@ feistel.o: feistel.c feistel.h bloc.h
 
 # Monsieur Propre
 clean:
-	@rm *.o; rm app.out; rm *.h.gch
+	@rm *.o; rm des.out; rm *.h.gch
 	@echo Suppression de:
 	@echo _ ${OBJ}
 	@echo _ ${GCH}
-	@echo _ app.out
+	@echo _ des.out
 	@echo On dit merci à Monsieur Propre !! 
