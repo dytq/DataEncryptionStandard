@@ -110,44 +110,41 @@ void chiffrement(char * message, char * mot_depasse) {
 	for(int i = 0 ; i < 16 ; i++) {
 		cle->gauche = double_shift_bc28(cle->gauche, (*(pointeur[14] + i)));
 		cle->droite = double_shift_bc28(cle->droite, (*(pointeur[14] + i)));	
-		printf("cle gauche [%X] : cle droite : [%X] \n",cle->gauche,cle->droite);
 		sous_cle[i] = genere_cle_48_bits(cle, pointeur[12]);
-		printf("sous - cle: %lX\n",sous_cle[i]);
+		//printf("sous - cle: %lX\n",sous_cle[i]);
 	} 
-	blocs[0] = 0x123456abcd132536;
-	printf("init text:%lX\n",blocs[0]);
-	blocs[0] = reverse_64_bits(blocs[0]);
-	blocs[0] = swap_bloc_64(blocs[0],pointeur[0]);
-	bc_text_s B = init_bc_text(blocs[0]);
-	printf("Split:\n");
-	printf("L[0]=%X\n",B.gauche);
-	printf("R[0]=%X\n",B.droite);
-	/*
+
 	for(int i = 0 ; i < nbr_bloc ; i++) {
-		blocs[i] = swap_bloc_64(blocs[i], pointeur[0]);
-		printf("IP:%lX\n",blocs[i]);
-		bc_text_s B = init_bc_text(blocs[i]);
+		blocs[0] = 0x123456abcd132536;
+		printf("init text:%lX\n",blocs[0]);
+		blocs[0] = reverse_64_bits(blocs[0]);
+		blocs[0] = swap_bloc_64(blocs[0],pointeur[0]);
+		bc_text_s B = init_bc_text(blocs[0]);
+		printf("Split:\n");
 		printf("L[0]=%X\n",B.gauche);
 		printf("R[0]=%X\n",B.droite);
+
 		bc32 tmp = 0;
 		for(int j = 0 ; j < 16 ; j++) {
-			B.gauche = B.gauche ^ feistel(B.droite,sous_cle[j],pointeur);
-			B.droite = B.droite ^ feistel(B.gauche,sous_cle[j],pointeur);
+			tmp = B.droite;
+			B.droite = B.gauche ^ feistel(B.droite,sous_cle[j],pointeur);
+			B.gauche =tmp;
 			printf("L[%d]=%X, R[%d] %X et cle:%lX\n",j+1,B.gauche,j+1,B.droite,sous_cle[j]);
 		}
 	
 		blocs[i] = 0;
-		blocs[i] = B.gauche;
+		blocs[i] = B.droite;
 		blocs[i] = blocs[i] << 32;
-		blocs[i] = blocs[i] | B.droite;
-	
+		blocs[i] = blocs[i] | B.gauche;
+		printf("after combination:%lX",blocs[i]);
+		blocs[i] = reverse_64_bits(blocs[i]);
 		blocs[i] = swap_bloc_64(blocs[i], pointeur[1]);
 	}
 	
 	for(int i = 0 ; i < nbr_bloc ; i++) {
 		printf("[%lX]\n",blocs[i]); 
 	}
-	*/
+
 	free(blocs);
 	free(pointeur);
 	free(cle);
