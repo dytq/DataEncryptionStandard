@@ -71,9 +71,14 @@ bc_text_s init_bc_text(bc64 text) {
 	B.droite = text; 
 	return B;
 }
-bc48 double_shift_bc28(bc48 value, int shift) {
+
+bc28 reformate_28_bits(bc28 value) {
+	return ((value | 0xF0000000) ^ 0xF0000000);	
+}
+bc28 double_shift_bc28(bc28 value, int shift) {
 	shift = shift % 28;
-	return value >> (28 - shift) | value << shift;
+	value = value << shift | value >> (28 - shift) ;
+	return reformate_28_bits(value);
 }
 
 void chiffrement(char * message, char * mot_depasse) {	
@@ -105,9 +110,9 @@ void chiffrement(char * message, char * mot_depasse) {
 	for(int i = 0 ; i < 16 ; i++) {
 		cle->gauche = double_shift_bc28(cle->gauche, (*(pointeur[14] + i)));
 		cle->droite = double_shift_bc28(cle->droite, (*(pointeur[14] + i)));	
-		printf("cle gauche %X : cle droite : %X \n",cle->gauche,cle->droite);
+		printf("cle gauche [%X] : cle droite : [%X] \n",cle->gauche,cle->droite);
 		sous_cle[i] = genere_cle_48_bits(cle, pointeur[12]);
-		printf("%lX\n",sous_cle[i]);
+		printf("sous - cle: %lX\n",sous_cle[i]);
 	} 
 	blocs[0] = 0x123456abcd132536;
 	printf("init text:%lX\n",blocs[0]);

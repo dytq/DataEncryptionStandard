@@ -26,6 +26,6 @@ bc48 genere_cle_48_bits(bc_cle_s * C, int * pointeur) {
 	cle = cle << 28;
 	cle = cle | C->droite;
 	cle = cle;
-	cle = reverse_48_bits(cle);
+	cle = reverse_56_bits(cle);
 	return swap_bloc_56_to_48(cle,pointeur);
 }

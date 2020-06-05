@@ -169,19 +169,6 @@ bc48 swap_bloc_32_to_48(bc32 text, int * pointeur) {
 	return res;
 }
 
-bc64 swap_bloc_48(bc48 text, int * pointeur) {
-    bc48 bit;
-	bc48 res = 0;
-	int i = 0;
-	while(text != 0) {
-		bit = text & 1;
-		bit = bit << (*(pointeur + i) - 1);
-		res = res | bit;	
-		text = text >> 1;
-		i++;
-	}
-	return res;
-}
 bc56 swap_bloc_64_to_56(bc64 text, int * pointeur) {
 	bc64 bit;
 	bc56 res = 0;
