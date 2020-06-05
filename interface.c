@@ -2,18 +2,18 @@
 
 void afficher_aide() {
 	printf("AIDE pour DES:\n");
-	printf("TAPER ./out {option} {FICHIER A IMPORTER} {MOT_DE_PASSE}\n");
+	printf("TAPER ./out {option} {MESSAGE} {MOT_DE_PASSE}\n");
 	printf("Les différentes options:\n");
 	printf("	'-e': pour encoder\n");
 	printf("	'-d': pour decoder\n");
-	printf("Bien evidement appliquer une seule option :p\n");
-	printf("L'agument {FICHIER A IMPORTER est un fichier à être importer");
-	printf("L'argument {MOT_DE_PASSE} ne doit pas contenir d'espace\n");
-	printf("	-C'est un fichier (le mot de passe peut contenir des espaces) OU le mot de passe sans espaces si le fichier n'existe pas\n");
+	printf("Bien evidement appliquer une seule option et chaque argument est séparé par un espace\n");
+	printf("Un argument peut-etre un fichier a importer ou un text. Par defaut le programme prend  le nom du fichier s'il est inexistant\n");
+	printf("L'agument {MESSAGE} est le message, soit ascii pour chiffrer soit en hexa pour dechiffrer\n");
+	printf("L'argument {MOT_DE_PASSE} est le mot de passe qu'on veut chiffrer\n");
 }
 
 void error_parsing_terminal_entry() {
-	fprintf(stderr,"Option non valide, entrer aide comme option pour en savoir plus\n");
+	fprintf(stderr,"Option non valide, entrer aide comme option (`./des.out aide`) pour en savoir plus\n");
 	exit(EXIT_FAILURE);
 }
 
@@ -80,20 +80,22 @@ bc28 double_shift_bc28(bc28 value, int shift) {
 	value = value << shift | value >> (28 - shift) ;
 	return reformate_28_bits(value);
 }
-bc64 * convertir_message_en_hexa_64_bits(char * message, int taille_message, int nbr_bloc) {
-	char *ptr;	
+bc64 * convertir_message_en_hexa_64_bits(char * message, int nbr_bloc) {
 	bc64 * blocs = malloc(sizeof(bc64) * nbr_bloc);
-	char * buff = malloc(sizeof(char) * 16 + sizeof('\0'));
-	//for(int i = 0 ; i < nbr_bloc ; i++) {
-		printf("message: %lX\n",strtoul(message, &ptr, 16));
-		 printf("String part is |%s|\n", ptr);
-		 
-
-	//}
+	int k = 0;
+	for(int i = 0 ; i < nbr_bloc ; i++) {
+		char * buff = malloc(sizeof(char) * 16 + sizeof('\0'));
+		for(int j = 0 ; j < 16 ; j++) {
+			buff[j] = message[k];
+			k++;
+		}
+		blocs[i] = strtoul(buff,NULL,16);
+		free(buff);
+	}
 	return blocs;
 }
 
-void chiffrement(char * message, char * mot_depasse) {	
+void chiffrement(char * message, char * mot_de_passe) {	
 	int * (*pointeur) = malloc(sizeof(int *) * NBR_TABLEAUX); // liste de pointeurs pour choisir quel tableau on utilise
 	init_pointeur(pointeur);
 	
@@ -119,25 +121,19 @@ void chiffrement(char * message, char * mot_depasse) {
 
 	// Feistel:
 	for(int i = 0 ; i < nbr_bloc ; i++) {
-		printf("init text:%lX\n",blocs[i]);
 		blocs[i] = reverse_64_bits(blocs[i]);
 		blocs[i] = swap_bloc_64(blocs[i],pointeur[0]);
 		bc_text_s B = init_bc_text(blocs[i]);
-		printf("Split:\n");
-		printf("L[0]=%X\n",B.gauche);
-		printf("R[0]=%X\n",B.droite);
 
 		bc32 tmp = 0;
 		for(int j = 0 ; j < 16 ; j++) {
 			tmp = B.droite;
 			B.droite = B.gauche ^ feistel(B.droite,sous_cle[j],pointeur);
 			B.gauche =tmp;
-			printf("L[%d]=%X, R[%d] %X et cle:%lX\n",j+1,B.gauche,j+1,B.droite,sous_cle[j]);
 		}
 	
 		blocs[i] = B.droite;
 		blocs[i] = ((blocs[i] << 32) | B.gauche);
-		printf("after combination:%lX\n",blocs[i]);
 		blocs[i] = reverse_64_bits(blocs[i]);
 		blocs[i] = swap_bloc_64(blocs[i], pointeur[1]);
 	}
@@ -151,17 +147,18 @@ void chiffrement(char * message, char * mot_depasse) {
 	free(cle);
 }
 
-
 void dechiffrement(char * message, char * mot_de_passe) {
 	int * (*pointeur) = malloc(sizeof(int *) * NBR_TABLEAUX); // liste de pointeurs pour choisir quel tableau on utilise
 	init_pointeur(pointeur);
 	
 	unsigned long int taille_message = strlen(message);
-	int nbr_bloc = (((taille_message - 1) / 8) + 1) / 2;
+	
+	int nbr_bloc = (taille_message) / 16;
 
-	bc64 * blocs = convertir_message_en_hexa_64_bits(message, taille_message, nbr_bloc);
-	/*
-	Generation de cles 
+	bc64 * blocs = convertir_message_en_hexa_64_bits(message, nbr_bloc);
+	
+	/* Generation de cles */ 
+	
 	bc48 * sous_cle = malloc(sizeof(bc48) * 16);
 	bc_cle_s * cle = malloc(sizeof(bc_cle_s));
 	if(sous_cle == NULL || cle == NULL ) {
@@ -176,39 +173,31 @@ void dechiffrement(char * message, char * mot_de_passe) {
 		sous_cle[i] = genere_cle_48_bits(cle, pointeur[12]);
 	} 
 
-	blocs[0] = 0x96F989FC3DA7B337;
 	for(int i = 0 ; i < nbr_bloc ; i++) {
-		printf("init text:%lX\n",blocs[i]);
 		blocs[i] = reverse_64_bits(blocs[i]);
 		blocs[i] = swap_bloc_64(blocs[i],pointeur[0]);
 		bc_text_s B = init_bc_text(blocs[i]);
-		printf("Split:\n");
-		printf("L[0]=%X\n",B.gauche);
-		printf("R[0]=%X\n",B.droite);
 
 		bc32 tmp = 0;
 		for(int j = 15 ; j >= 0 ; j--) {
 			tmp = B.droite;
 			B.droite = B.gauche ^ feistel(B.droite,sous_cle[j],pointeur);
 			B.gauche =tmp;
-			printf("L[%d]=%X, R[%d] %X et cle:%lX\n",j+1,B.gauche,j+1,B.droite,sous_cle[j]);
 		}
 		
 		blocs[i] = B.droite;
 		blocs[i] = ((blocs[i] << 32) | B.gauche);
-		printf("after combination:%lX\n",blocs[i]);
 		blocs[i] = reverse_64_bits(blocs[i]);
 		blocs[i] = swap_bloc_64(blocs[i], pointeur[1]);
 	}
-	
+	// il faut juste convertir
 	for(int i = 0 ; i < nbr_bloc ; i++) {
 		printf("[%lX]\n",blocs[i]); 
 	}
-	printf("fin\n");
+	
 	free(blocs);
 	free(pointeur);
 	free(cle);
-	*/
 } 
 
 char * lire_fichier(char * chemin) {
