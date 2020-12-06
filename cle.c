@@ -25,9 +25,7 @@ bc_cle_s permutation_initial_cle(bc64 cle, int ** pointeur) {
 
 bc48 genere_cle_48_bits(bc_cle_s * C, int * pointeur) {
 	bc56 cle = C->gauche;
-	cle = cle << 28;
-	cle = cle | C->droite;
-	cle = cle;
+	cle = (cle << 28) | C->droite;
 	cle = reverse_56_bits(cle);
 	return swap_bloc_56_to_48(cle,pointeur);
 }
